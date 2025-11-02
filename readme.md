@@ -42,7 +42,7 @@ El objetivo de **FoodTrack** es **garantizar la trazabilidad, transparencia y ef
      - Gráficas de consumo por categoría de alimento.  
    - Alertas de inconsistencias (ej. consumo mayor a lo entregado).  
 
-5. **Gestión de usuarios y roles**
+5. **Gestión de users y roles**
    - Roles diferenciados: Inspectora, Vocero parroquial, Director, Vocera escolar, Administrador CDL.  
    - Control de accesos según responsabilidades.  
    - Registro de auditoría (quién hizo qué y cuándo).  

@@ -49,13 +49,13 @@ if (file_exists($controllerFile)) {
             call_user_func_array([$controller, $methodName], $params);
         } else {
             // Error 404 - Método no encontrado
-            echo "Error 404: Método no encontrado.";
+            echo "Error 404: Method not found.";
         }
     } else {
         // Error 404 - Clase no encontrada
-        echo "Error 404: Clase de controlador no encontrada.";
+        echo "Error 404: Controller class not found.";
     }
 } else {
     // Error 404 - Archivo no encontrado
-    echo "Error 404: Controlador no encontrado.";
+    echo "Error 404: Controller file not found.";
 }
