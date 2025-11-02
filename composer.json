@@ -1,0 +1,9 @@
+{
+    "name": "adolfojos/footrack",
+    "description": "Sistema de seguimiento de los alimentos.",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
