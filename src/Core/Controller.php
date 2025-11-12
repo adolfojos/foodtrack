@@ -18,7 +18,7 @@ abstract class Controller {
     protected function checkAuth() {
         if (!isset($_SESSION['user_id'])) {
             // Si no hay sesión activa, redirigir al login
-            header('Location: /foodtrack/public/auth/login');
+            header('Location: ' . BASE_URL . 'auth/login');
             exit;
         }
     }

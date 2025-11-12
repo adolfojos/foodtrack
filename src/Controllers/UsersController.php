@@ -98,10 +98,10 @@ class UsersController extends Controller {
                 $this->userModel->create($data);
             }
             
-            header('Location: /foodtrack/public/users');
+            header('Location: ' . BASE_URL . 'users');
             exit;
         }
-        header('Location: /foodtrack/public/users/create');
+        header('Location: ' . BASE_URL . 'users/create');
         exit;
     }
 
@@ -118,7 +118,7 @@ class UsersController extends Controller {
         
         $this->userModel->delete($id);
         
-        header('Location: /foodtrack/public/users');
+        header('Location: ' . BASE_URL . 'users');
         exit;
     }
 }

@@ -15,10 +15,29 @@
     <script src="<?= JS_PATH ?>main.js"></script>
     <script src="<?= JS_PATH ?>session-management.js"></script>
     <script src="<?= JS_PATH ?>custom-toast.js"></script>
-    <script src="<?= JS_PATH ?>datatables-global.js"></script>
+    <!--<script src="<?= JS_PATH ?>datatables-global.js"></script>-->
     <script src="<?= JS_PATH ?>inactivity-logout.js"></script>
     <script src="<?= JS_PATH ?>identification-letter-fix.js"></script>
     <!-- Inicialización de componentes -->
+    <script>
+    $(document).ready(function () {
+    $('.datatable').DataTable({
+      pageLength: 5,           // Muestra 5 registros por página
+      lengthChange: true,     // Oculta el selector de cantidad
+      searching: true,        //  Oculta el buscador
+      info: false,             // Oculta el texto de “Mostrando...”
+    language: {
+        zeroRecords: "No se encontraron resultados",
+        paginate: {
+            first: "Primero",
+            last: "Último",
+            next: "Siguiente",
+            previous: "Anterior"
+        }
+    }
+    });
+});
+</script>
     <script>
         $(document).ready(function() {
             $('.button-collapse').sideNav();

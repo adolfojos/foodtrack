@@ -32,28 +32,34 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="<?= BASE_URL ?>tickets" title="Tickets">
-                                    <i class="material-icons">receipt</i>
-                                    <span class="hide-on-small-only">Tickets</span>
+                                    <a href="<?= BASE_URL ?>institutions" title="Institutions">
+                                    <i class="material-icons">account_balance</i>
+                                    <span class="hide-on-small-only">Institutions</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="<?= BASE_URL ?>tickets/create" title="Open Ticket">
-                                    <i class="ico-pago_facturas"></i>
-                                    <span class="hide-on-small-only">Open Ticket</span>
+                                    <a href="<?= BASE_URL ?>actors" title="Actors">
+                                    <i class="material-icons">assignment_ind</i>
+                                    <span class="hide-on-small-only">Actors</span>
                                     </a>
                                 </li>
                                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
                                 <li>
-                                    <a href="<?= BASE_URL ?>devices" title="Devices">
-                                    <i class="material-icons">laptop</i>
-                                    <span class="hide-on-small-only">Devices</span>
+                                    <a href="<?= BASE_URL ?>receptions" title="Receptions">
+                                    <i class="material-icons">assignment</i>
+                                    <span class="hide-on-small-only">Receptions</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="<?= BASE_URL ?>departments" title="Departments">
-                                    <i class="material-icons">domain</i>
-                                    <span class="hide-on-small-only">Departments</span>
+                                    <a href="<?= BASE_URL ?>deliveries" title="Deliveries">
+                                    <i class="material-icons">local_shipping</i>
+                                    <span class="hide-on-small-only">Deliveries</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="<?= BASE_URL ?>dailyreports" title="Daily Reports">
+                                    <i class="material-icons">local_shipping</i>
+                                    <span class="hide-on-small-only">Daily Reports</span>
                                     </a>
                                 </li>
                                 <li>
@@ -154,3 +160,11 @@
                 endif;
                 // ---- FIN DE MENSAJES FLASH ---//
                 ?>
+
+<!-- Mensajes flash -->
+    <?php if (isset($_SESSION['flash_message'])): ?>
+        <div class="flash <?= $_SESSION['flash_message']['type'] ?>">
+            <?= htmlspecialchars($_SESSION['flash_message']['message']) ?>
+        </div>
+        <?php unset($_SESSION['flash_message']); ?>
+    <?php endif; ?>

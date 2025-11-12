@@ -67,9 +67,59 @@ El objetivo de **FoodTrack** es **garantizar la trazabilidad, transparencia y ef
 
 ## Estructura del proyecto
 
-/foodtrack/ | |-- /config/ | |-- database.php (Credenciales de la BD) | |-- /public/ (Carpeta accesible desde el navegador) | |-- index.php (Front Controller - Punto de entrada único) | |-- .htaccess (URLs amigables) | |-- /css/ | |-- /js/ | |-- /src/ (Código de la aplicación) | |-- /Core/ (Clases base: Router, Database, Controller...) | |-- /Models/ (Clases que interactúan con la BD) | |-- /Views/ (Vistas HTML/PHP: login.php, institutions/index.php...) | |-- /Controllers/ (Lógica: AuthController.php, InstitutionController.php...) | |-- /vendor/ (Carpeta gestionada por Composer) | |-- composer.json (Dependencias y autocarga)
-
----
+FOODTRACK/
+├── config/
+│   ├── config.php
+│   └── database.php
+├── public/
+│   ├── css/
+│   ├── fonts/
+│   ├── img/
+│   ├── js/
+│   ├── vendors/
+│   ├── .htaccess
+│   └── index.php
+├── src/
+│   ├── Controllers/
+│   │   ├── AuthController.php
+│   │   ├── HomeController.php
+│   │   └── UsersController.php
+│   ├── Core/
+│   │   ├── Controller.php
+│   │   ├── Database.php
+│   │   └── Model.php
+│   ├── Models/
+│   │   └── User.php
+│   └── Views/
+│       ├── auth/
+│       │   ├── login.php
+│       └── dashboard/
+│           ├── index.php
+│       ├── layout/
+│       │   ├── footer.php
+│       │   ├── header.php
+│       │   ├── left-side-menu.php
+│       │   └── right-side-menu.php
+│       └── users/
+│           ├── form.php
+│           └── list.php
+├── vendor/
+│   ├── composer/
+│   │   ├── autoload_classmap.php
+│   │   ├── autoload_namespaces.php
+│   │   ├── autoload_psr4.php
+│   │   ├── autoload_real.php
+│   │   ├── autoload_static.php
+│   │   ├── ClassLoader.php
+│   │   ├── installed.json
+│   │   └── installed.php
+│   └── autoload.php
+├── .gitignore
+├── composer.json
+├── composer.lock
+├── crear_admin.php
+├── readme.md
+└── schema.sql
 
 ##  Instalación
 

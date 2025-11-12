@@ -1,4 +1,4 @@
-<!-- Left side menu (base template) -->
+
 <aside id="left-side-menu">
     <ul class="collapsible collapsible-accordion">
         <li class="no-padding">
@@ -13,130 +13,51 @@
         </li>
     </ul>
 </aside>
-
-<!-- Main content -->
 <article>
     <div class="conten-body">
-        <!-- KPI panel -->
         <div class="col s12 m12 l12">
             <div class="card-panel">
+                <!-- Título y botón -->
                 <div class="card-title">
                     <div class="row">
                         <div class="header-title-left col s12 m6">
-                            <h5><?php echo $title; ?></h5>
+                            <h5><?= htmlspecialchars($title) ?></h5>
+                        </div>
+                        <div class="btn-action-title col s12 m6 align-right">
+
                         </div>
                     </div>
-                </div>
-
-                <div class="card-content bodytext">
-                    <div class="row">
-                        
-                    </div>
-
-                    <!-- Action button -->
-                    <div class="row btn-actions">
-                        <div class="col s12">
-                            <a class="btn btn-large green darken-1">
-                                <i class="material-icons left">add</i> Open Ticket
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Table of latest pending tickets -->
-        <div class="col s12 m12 l12">
-            <div class="card-panel">
-                <div class="card-title">
-                    <div class="row">
-                        <div class="header-title-left col s12 m6">
-                            <h5>Latest Pending Tickets</h5>
-                        </div>
-                    </div>
-                </div>
-
+                </div>                
+                <!-- Estadísticas-->
                 <div class="row row-end">
+                    <div class="divider"></div>
                     <div class="col s12">
-                        <div class="text-info">
-                            <div class="text-content">
-                                These are the latest pending tickets registered in the system.
+                        <h6 class="col s12">Estadísticas de Actores (Usuarios)</h6>
+                        <?php
+                            $kpis_actores = [
+                                ['color' => 'light-blue darken-1', 'icon' => 'group', 'role' => 'vocero_parroquial', 'label' => 'Parroquiales'],
+                                ['color' => 'lime darken-1', 'icon' => 'work', 'role' => 'vocero_institucional', 'label' => 'Institucionales'],
+                                ['color' => 'amber darken-1', 'icon' => 'school', 'role' => 'director', 'label' => 'Directores'],
+                                ['color' => 'teal darken-1', 'icon' => 'restaurant', 'role' => 'cocinero', 'label' => 'Cocineros'],
+                                // Puedes añadir más roles aquí si los necesitas
+                                ];
+                            foreach ($kpis_actores as $kpi_a): 
+                            // Obtener el conteo seguro, si el rol no existe, es 0
+                            $count = $actorStats[$kpi_a['role']] ?? 0;
+                        ?>
+                            <div class="col s12 m6 l3">
+                                <div class="card-panel <?= $kpi_a['color'] ?> white-text center-align kpi-card-main">
+                                    <i class="material-icons"><?= $kpi_a['icon'] ?></i>
+                                    <h5><?= htmlspecialchars($count) ?></h5>
+                                    <p>
+                                        <?= htmlspecialchars($kpi_a['label']) ?>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-
-                        <table id="table" class="bordered highlight table-responsive">
-                            <thead>
-                                <tr>
-                                    <th class="hide-on-small-only">ID</th>
-                                    <th>Device</th>
-                                    <th>Department</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="row_table">
-                                    <td class="hide-on-small-only"></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td class="adjusted-size">
-                                        <a href="<?= BASE_URL ?>tickets/view/1" class="btn btn-sm btn-primary">View</a>
-                                        <a href="<?= BASE_URL ?>tickets/assign/1" class="btn btn-sm btn-warning">Assign</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p class="text-muted">No recent pending tickets.</p>
+                        <?php endforeach; ?>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Latest Tickets In Progress -->
-        <div class="col s12 m12 l12">
-            <div class="card-panel">
-                <div class="card-title">
-                    <div class="row">
-                        <div class="header-title-left col s12 m6">
-                            <h5>Latest Tickets In Progress</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row row-end">
-                    <div class="col s12">
-                        <div class="text-info">
-                            <div class="text-content">
-                                These are the tickets currently in progress registered in the system.
-                            </div>
-                        </div>
-                        <table class="bordered highlight table-responsive">
-                            <thead>
-                                <tr>
-                                    <th class="hide-on-small-only">ID</th>
-                                    <th>Device</th>
-                                    <th>Department</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="row_table">
-                                    <td class="hide-on-small-only"> </td>
-                                    <td>  </td>
-                                    <td>  </td>
-                                    <td> </td>
-                                    <td class="adjusted-size">
-                                        <a href="<?= BASE_URL ?>tickets/view/1" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p class="text-muted">No tickets in progress.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            </div> <!-- card-panel -->
+        </div> <!-- col -->
+    </div> <!-- conten-body -->
 </article>

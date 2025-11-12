@@ -40,7 +40,7 @@ class AuthController extends Controller
     public function process()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: /foodtrack/public/auth/login');
+            header('Location: ' . BASE_URL . 'auth/login');
             exit;
         }
 
@@ -62,13 +62,13 @@ class AuthController extends Controller
             $_SESSION['role']     = $user->role;
             
             // Redirigir al dashboard (o lista de soportes)
-            header('Location: /foodtrack/public/');
+            header('Location: ' . BASE_URL . '');
             exit;
 
         } else {
             // Falla: user o contraseña incorrectos
             $this->setFlashMessage('error', 'Incorrect credentials. Please try again.');
-            header('Location: /foodtrack/public/auth/login');
+            header('Location: ' . BASE_URL . 'auth/login');
             exit;
         }
     }
@@ -83,7 +83,7 @@ class AuthController extends Controller
         session_destroy(); // Destruye la sesión
         
         // Redirige al login
-        header('Location: /foodtrack/public/auth/login');
+        header('Location: ' . BASE_URL . 'auth/login');
         exit;
     }
 }

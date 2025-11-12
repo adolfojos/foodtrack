@@ -102,4 +102,27 @@ abstract class Model {
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([$id]);
     }
+    /**
+     * Inicia una transacción PDO.
+     */
+    public function beginTransaction()
+    {
+        return $this->pdo->beginTransaction();
+    }
+
+    /**
+     * Confirma una transacción PDO.
+     */
+    public function commit()
+    {
+        return $this->pdo->commit();
+    }
+
+    /**
+     * Revierte una transacción PDO.
+     */
+    public function rollBack()
+    {
+        return $this->pdo->rollBack();
+    }
 }
