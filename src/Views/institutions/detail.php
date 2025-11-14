@@ -46,7 +46,14 @@
                             </li>
                             <li>
                                 <br>
-                                <b>Director:</b> <?= !empty($institution->director) ? htmlspecialchars($institution->director) : '-' ?>
+                                <b>Director:</b>
+                                <?php if (!empty($directors)): ?>
+                                    <?php foreach ($directors as $director): ?>
+                                        <?= htmlspecialchars($director->full_name) ?> 
+                                            (C.I. <?= htmlspecialchars($director->national_id) ?>)
+                                        <?php endforeach; ?>
+                                    <?php else: ?>- N/A
+                                <?php endif; ?>
                             </li>
                             <li>
                                 <b>Teléfono:</b> <?= !empty($institution->phone) ? htmlspecialchars($institution->phone) : '-' ?>

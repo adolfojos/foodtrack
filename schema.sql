@@ -43,7 +43,7 @@ CREATE TABLE actors (
     institution_id INT NULL,
 
     -- Status and timestamps
-    is_active BOOLEAN DEFAULT TRUE,
+    active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -52,17 +52,41 @@ CREATE TABLE actors (
     FOREIGN KEY (institution_id) REFERENCES institutions(id) ON DELETE SET NULL
 );
 
+
 CREATE TABLE receptions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     date DATE NOT NULL,
     inspector_id INT NOT NULL,
     vocero_parroquial_id INT NOT NULL,
     notes TEXT,
-    total_bags INT NOT NULL,
+    reception_type ENUM('CLAP', 'FRUVERT', 'PROTEINA', 'OTRO') NOT NULL, /* ¡NUEVO! */
+    summary_quantity INT NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (inspector_id) REFERENCES actors(id),
     FOREIGN KEY (vocero_parroquial_id) REFERENCES actors(id)
+);
+
+CREATE TABLE reception_items (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+  
+  /* Llave foránea para saber a qué recepción pertenece este item */
+  reception_id INT NOT NULL,
+  
+  /* Descripción del producto: 'Bolsa CLAP', 'Cambur', 'Pollo', 'Plátano' */
+  product_name VARCHAR(255) NOT NULL,
+  
+  /* La cantidad (puede ser peso o conteo). 
+     Usamos DECIMAL para soportar 1.5 toneladas */
+  quantity DECIMAL(10, 3) NOT NULL,
+  
+  /* La unidad de medida: 'BOLSAS', 'TONELADAS', 'KILOS', 'UNIDADES' */
+  unit VARCHAR(50) NOT NULL,
+  
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (reception_id) REFERENCES receptions(id)
+    ON DELETE CASCADE /* Si se borra la recepción, se borran sus items */
 );
 
 CREATE TABLE deliveries (

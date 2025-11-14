@@ -1,8 +1,6 @@
-<!-- Views/receptions/list.php -->
 <main class="container">
     <h4><?= htmlspecialchars($title) ?></h4>
 
-    <!-- Mensajes flash -->
     <?php if (isset($_SESSION['flash_message'])): ?>
         <div class="flash <?= $_SESSION['flash_message']['type'] ?>">
             <?= htmlspecialchars($_SESSION['flash_message']['message']) ?>
@@ -20,10 +18,9 @@
         <thead>
             <tr>
                 <th>Fecha</th>
-                <th>Inspector</th>
+                <th>Tipo</th> <th>Inspector</th>
                 <th>Vocero Parroquial</th>
-                <th>Total Bolsas</th>
-                <th>Observaciones</th>
+                <th>Cant. Resumen</th> <th>Observaciones</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -32,11 +29,18 @@
             <?php foreach ($receptions as $r): ?>
                 <tr>
                     <td><?= htmlspecialchars($r->date) ?></td>
-                    <td><?= htmlspecialchars($r->inspector_name) ?></td>
+                    <td><?= htmlspecialchars($r->reception_type) ?></td> <td><?= htmlspecialchars($r->inspector_name) ?></td>
                     <td><?= htmlspecialchars($r->vocero_parroquial_name) ?></td>
-                    <td><?= (int)$r->total_bags ?></td>
+                    <td>
+                        <?php if ($r->reception_type === 'CLAP'): ?>
+                            <?= (int)$r->summary_quantity ?> Bolsas
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
+                    </td>
                     <td><?= htmlspecialchars($r->notes) ?></td>
                     <td>
+                        <a title="Detail" href="<?=BASE_URL?>receptions/detail/<?php echo $r->id; ?>"><i class="ico-visibility tiny"></i></a> &nbsp;
                         <a href="<?= BASE_URL ?>receptions/delete/<?= $r->id ?>" 
                         class="btn-small red"
                         onclick="return confirm('¿Eliminar esta recepción?')">
@@ -50,7 +54,7 @@
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>
-            <tr><td colspan="6">No hay recepciones registradas.</td></tr>
+            <tr><td colspan="7">No hay recepciones registradas.</td></tr>
         <?php endif; ?>
         </tbody>
     </table>

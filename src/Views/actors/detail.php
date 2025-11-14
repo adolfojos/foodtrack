@@ -48,9 +48,20 @@
                         <table class="striped">
                             <tbody>
                                 <tr>
-                                    <th>Institución Vinculada</th>
+                                    <th>Instituciones Vinculadas</th>
                                     <td>
-                                        <?= htmlspecialchars($actor->institution_name ?? 'N/A (Sin Asignar)') ?>
+                                        <?php if (!empty($institutions)): ?>
+                                            <ul style="margin: 0; padding-left: 20px;">
+                                                <?php foreach ($institutions as $inst): ?>
+                                                    <li>
+                                                        <?= htmlspecialchars($inst->name) ?>
+                                                        <small>(ID: <?= $inst->id ?>)</small>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php else: ?>
+                                            N/A (Sin Asignar)
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <tr>

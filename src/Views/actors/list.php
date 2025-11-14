@@ -33,13 +33,13 @@
                 <!-- Tabla de institutions -->
                 <div class="row row-end">
                     <div class="col s12">
-                        <table id="institutions" class="datatable bordered highlight table-responsive">
+<table id="actors_table" class="datatable bordered highlight table-responsive">
                             <thead>
                                 <tr>
                                     <th data-priority="0" class="hide-on-small-only">Nombre</th>
                                     <th data-priority="1" class="hide-on-small-only">Rol</th>
-                                    <th data-priority="2" class="hide-on-small-only">Institución</th>
-                                    <th data-priority="5" class="no-sort"></th>
+                                    <th data-priority="2" class="hide-on-small-only">Institución(es)</th>
+                                    <th data-priority="5" class="no-sort">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -49,32 +49,34 @@
                                             <td class="hide-on-small-only nowrap"><?= htmlspecialchars($a->full_name) ?></td>
                                             <td class="hide-on-small-only">
                                                 <?= match ($a->role) {
+                                                    'admin' => 'Administrador',
+                                                    'inspector' => 'Inspector',
                                                     'vocero_parroquial' => 'Vocero Parroquial',
                                                     'vocero_institucional' => 'Vocero Institucional',
+                                                    'director' => 'Director',
+                                                    'cocinero' => 'Cocinero/a',
                                                     null => '-',
                                                     default => htmlspecialchars($a->role), 
-                                                    } ?>
-
+                                                } ?>
                                             </td>
                                             <td class="hide-on-small-only"> 
-                                            <?= htmlspecialchars($a->institution_name ?? '-') ?></td>
+                                                <?= htmlspecialchars($a->institution_names ?? 'N/A') ?>
+                                            </td>
                                             <td class="adjusted-size">
-                                            <a title="Detail" href="<?=BASE_URL?>actors/detail/<?php echo $a->id; ?>"><i class="ico-visibility tiny"></i></a>    
-                                            <a title="Edit" href="<?= BASE_URL ?>actors/create/<?php echo $a->id; ?>"><i class="ico-edit tiny"></i></a>
-                                            <a title="Delete" href="<?= BASE_URL ?>actors/delete/<?php echo $a->id; ?>" onclick="return confirm('Are you sure you want to delete the institutions <?php echo $a->name ?>?')"><i class="ico-delete tiny"></i></a>
-                                            <!--<a title="Block" href="<?= BASE_URL ?>actors/block/<?= $a->id ?>"  onclick="return confirm('¿Desactivar esta institución?')"><i class="material-icons">block</i></a> -->
+                                                <a title="Detail" href="<?=BASE_URL?>actors/detail/<?php echo $a->id; ?>"><i class="ico-visibility tiny"></i></a> &nbsp;
+                                                <a title="Edit" href="<?= BASE_URL ?>actors/create/<?php echo $a->id; ?>"><i class="ico-edit tiny"></i></a> &nbsp;
+                                                <a title="Delete" href="<?= BASE_URL ?>actors/delete/<?php echo $a->id; ?>" onclick="return confirm('¿Está seguro que desea eliminar al actor <?php echo htmlspecialchars($a->full_name) ?>?')"><i class="ico-delete tiny"></i></a> &nbsp;
                                                 <a title="PDF"  href="<?= BASE_URL ?>actors/pdf/<?= $a->id ?>"><i class="material-icons">picture_as_pdf</i></a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
                                     <?php else: ?>
-                                            <tr class="odd">
-                                                <td colspan="5" class="dataTables_empty">No data available in this table</td>
-                                            </tr>
+                                        <tr class="odd">
+                                            <td colspan="4" class="dataTables_empty">No hay datos disponibles en esta tabla</td>
+                                        </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
-                    </div>
                 </div>
             </div> <!-- card-panel -->
         </div> <!-- col -->
