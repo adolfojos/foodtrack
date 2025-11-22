@@ -1,225 +1,250 @@
-<!-- Views/receptions/form.php -->
+<?php
+// Detectar si es edición o creación
+$isEdit = isset($reception);
+$actionUrl = $isEdit ? BASE_URL . "receptions/update/{$reception->id}" : BASE_URL . "receptions/save";
+$headerTitle = $isEdit ? "Editar Recepción #{$reception->id}" : "Nueva Recepción";
+?>
+
 <main class="container">
-    <h4><?= htmlspecialchars($title) ?></h4>
+    <div class="card-panel">
+        <h4><?= htmlspecialchars($headerTitle) ?></h4>
 
-    <form method="post" action="<?= BASE_URL ?>receptions/save" class="col s12">
-        <div class="row">
-            <!-- Fecha (Mejora: Fecha actual por defecto) -->
-            <div class="input-field col s6">
-                <!-- Se establece la fecha actual usando PHP para conveniencia del usuario -->
-                <input type="date" name="date" id="date" required value="<?= date('Y-m-d') ?>">
-                <label for="date" class="active">Fecha de recepción</label>
+        <form method="post" action="<?= $actionUrl ?>" autocomplete="off">
+            
+            <div class="row">
+                <div class="input-field col s12 m6">
+                    <input type="date" name="date" id="date" required 
+                           value="<?= $isEdit ? $reception->date : date('Y-m-d') ?>">
+                    <label for="date" class="active">Fecha de recepción</label>
+                </div>
+
+                <div class="input-field col s12 m6">
+                    <select name="reception_type" id="reception_type" required onchange="toggleHint()">
+                        <option value="" disabled <?= !$isEdit ? 'selected' : '' ?>>Seleccione tipo</option>
+                        <?php foreach ($receptionTypes as $type): ?>
+                            <option value="<?= $type ?>" 
+                                <?= ($isEdit && $reception->reception_type == $type) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($type) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <label>Tipo de recepción</label>
+                </div>
             </div>
 
-            <!-- Tipo de recepción -->
-            <div class="input-field col s6">
-                <select name="reception_type" required>
-                    <option value="" disabled selected>Seleccione tipo</option>
-                    <?php foreach ($receptionTypes as $type): ?>
-                        <option value="<?= $type ?>"><?= htmlspecialchars($type) ?></option>
+            <div class="row">
+                <div class="input-field col s12 m6">
+                    <input type="number" name="summary_quantity" id="summary_quantity" min="0" 
+                           value="<?= $isEdit ? $reception->summary_quantity : '' ?>">
+                    <label for="summary_quantity" id="lbl_summary">Cantidad Total / N° Bolsas</label>
+                    <span class="helper-text" id="helper_summary"></span>
+                </div>
+
+                <div class="input-field col s12 m6">
+                    <select name="inspector_id" required>
+                        <option value="" disabled <?= !$isEdit ? 'selected' : '' ?>>Inspector responsable</option>
+                        <?php foreach ($inspectors as $i): ?>
+                            <option value="<?= $i->id ?>" 
+                                <?= ($isEdit && $reception->inspector_id == $i->id) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($i->full_name) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <label>Inspector</label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-field col s12 m6">
+                    <select name="vocero_parroquial_id" required>
+                        <option value="" disabled <?= !$isEdit ? 'selected' : '' ?>>Vocero Parroquial</option>
+                        <?php foreach ($spokespersons as $p): ?>
+                            <option value="<?= $p->id ?>" 
+                                <?= ($isEdit && $reception->vocero_parroquial_id == $p->id) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($p->full_name) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <label>Vocero</label>
+                </div>
+
+                <div class="input-field col s12 m6">
+                    <textarea name="notes" id="notes" class="materialize-textarea"><?= $isEdit ? htmlspecialchars($reception->notes) : '' ?></textarea>
+                    <label for="notes">Observaciones</label>
+                </div>
+            </div>
+
+            <datalist id="products-list-options">
+                <?php if (!empty($productsList)): ?>
+                    <?php foreach ($productsList as $prodName): ?>
+                        <option value="<?= htmlspecialchars($prodName) ?>">
                     <?php endforeach; ?>
-                </select>
-                <label>Tipo de recepción</label>
-            </div>
-        </div>
+                <?php endif; ?>
+            </datalist>
 
-        <div class="row">
-            <!-- Cantidad resumen -->
-            <div class="input-field col s6">
-                <input type="number" name="summary_quantity" id="summary_quantity" min="0">
-                <label for="summary_quantity">Cantidad resumen (ej. N° de bolsas)</label>
-            </div>
+            <hr>
+            <h5>Contenido de la Recepción</h5>
+            <div class="card-panel grey lighten-5">
+                <p id="instruction-text" class="blue-text text-darken-2">
+                    <i class="material-icons tiny">info</i> Ingrese los productos recibidos.
+                </p>
 
-            <!-- Inspector -->
-            <div class="input-field col s6">
-                <select name="inspector_id" required>
-                    <option value="" disabled selected>Seleccione inspector</option>
-                    <?php foreach ($inspectors as $i): ?>
-                        <option value="<?= $i->id ?>"><?= htmlspecialchars($i->full_name) ?></option>
+                <div class="row row-header hide-on-small-only">
+                    <div class="col s4"><strong>Producto</strong></div>
+                    <div class="col s3"><strong id="qty-header">Cantidad</strong></div>
+                    <div class="col s3"><strong>Unidad</strong></div>
+                    <div class="col s2 center-align"><strong>Acción</strong></div>
+                </div>
+                
+                <div id="items-container">
+                    <?php 
+                    // LOGICA DE RENDERIZADO DE ITEMS (PARA EDICION)
+                    // Si estamos editando, hacemos un bucle. Si no, mostramos una fila vacía.
+                    $initialItems = $isEdit ? $items : [null]; 
+                    $currentIndex = 0;
+                    ?>
+
+                    <?php foreach ($initialItems as $item): ?>
+                        <div class="row item-row valign-wrapper" data-index="<?= $currentIndex ?>">
+                            <div class="input-field col s4">
+                                <input type="text" 
+                                       name="items[<?= $currentIndex ?>][product_name]" 
+                                       list="products-list-options" 
+                                       placeholder="Escriba para buscar..." 
+                                       value="<?= $item ? htmlspecialchars($item->product_name) : '' ?>"
+                                       required>
+                            </div>
+                            <div class="input-field col s3">
+                                <input type="number" name="items[<?= $currentIndex ?>][quantity]" 
+                                       placeholder="0" step="0.01" min="0.01" 
+                                       value="<?= $item ? floatval($item->quantity) : '' ?>"
+                                       required>
+                            </div>
+                            <div class="input-field col s3">
+                                <input type="text" name="items[<?= $currentIndex ?>][unit]" 
+                                       placeholder="Kg" 
+                                       value="<?= $item ? htmlspecialchars($item->unit) : '' ?>"
+                                       required>
+                            </div>
+                            <div class="col s2 center-align">
+                                <button type="button" class="btn-flat red-text remove-item" onclick="removeItem(this)">
+                                    <i class="material-icons">delete</i>
+                                </button>
+                            </div>
+                        </div>
+                        <?php $currentIndex++; ?>
                     <?php endforeach; ?>
-                </select>
-                <label>Inspector responsable</label>
-            </div>
-        </div>
+                </div>
 
-        <div class="row">
-            <!-- Vocero parroquial -->
-            <div class="input-field col s6">
-                <select name="vocero_parroquial_id" required>
-                    <option value="" disabled selected>Seleccione vocero</option>
-                    <?php foreach ($spokespersons as $p): ?>
-                        <option value="<?= $p->id ?>"><?= htmlspecialchars($p->full_name) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <label>Vocero parroquial</label>
+                <button type="button" class="btn blue lighten-1" onclick="addItem()">
+                    <i class="material-icons left">add</i> Agregar Producto
+                </button>
             </div>
 
-            <!-- Observaciones -->
-            <div class="input-field col s6">
-                <textarea name="notes" id="notes" class="materialize-textarea"></textarea>
-                <label for="notes">Observaciones</label>
+            <div class="row center-align mt-3" style="margin-top: 2rem;">
+                <button type="submit" class="btn waves-effect waves-light green darken-1 btn-large">
+                    <i class="material-icons left">save</i> <?= $isEdit ? 'Actualizar' : 'Guardar' ?>
+                </button>
+                <a href="<?= BASE_URL ?>receptions" class="btn grey waves-effect waves-light btn-large">
+                    <i class="material-icons left">arrow_back</i> Cancelar
+                </a>
             </div>
-        </div>
-
-        <!-- Ítems -->
-        <h5>Productos recibidos</h5>
-        <div class="row grey lighten-4 p-2 mb-2">
-            <div class="col s3">**Producto**</div>
-            <div class="col s3">**Cantidad**</div>
-            <div class="col s3">**Unidad**</div>
-            <div class="col s3 center-align">**Acción**</div>
-        </div>
-        
-        <div id="items-container">
-            <!-- Primer ítem (necesita un botón de eliminar si se permite que sea opcional) -->
-            <div class="row item-row" data-index="0">
-                <div class="input-field col s3">
-                    <input type="text" name="items[0][product_name]" placeholder="Nombre del producto" required>
-                </div>
-                <div class="input-field col s3">
-                    <input type="number" name="items[0][quantity]" placeholder="0" min="1" required>
-                </div>
-                <div class="input-field col s3">
-                    <input type="text" name="items[0][unit]" placeholder="Kg, unidad, lt" required>
-                </div>
-                <!-- Botón de eliminar (visible solo para el primer ítem, si hay más de uno) -->
-                <div class="input-field col s3 center-align">
-                    <button type="button" class="btn-flat red-text remove-item" onclick="removeItem(this)">
-                        <i class="material-icons">delete</i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row">
-            <button type="button" class="btn blue" onclick="addItem()">
-                <i class="material-icons left">add</i> Añadir producto
-            </button>
-        </div>
-
-        <div class="row right-align">
-            <button type="submit" class="btn waves-effect waves-light green darken-1">
-                <i class="material-icons left">save</i> Guardar Recepción
-            </button>
-            <a href="<?= BASE_URL ?>receptions" class="btn grey waves-effect waves-light">
-                <i class="material-icons left">arrow_back</i> Cancelar
-            </a>
-        </div>
-    </form>
+        </form>
+    </div>
 </main>
 
 <script>
-    let itemIndex = 1; // El índice inicial es 1, ya que el primer elemento es 0.
+    // Inicializamos el índice en base a cuántos items pintamos con PHP
+    let itemIndex = <?= $currentIndex ?>;
 
     document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar selectores de Materialize
-        var elems = document.querySelectorAll('select');
-        M.FormSelect.init(elems);
-        
-        // Función para verificar si el primer ítem debe tener el botón de eliminar visible
+        M.FormSelect.init(document.querySelectorAll('select'));
+        M.updateTextFields(); // Importante para que las labels no se solapen con el texto en modo edición
         updateRemoveButtonVisibility();
+        toggleHint(); // Ejecutar al inicio para poner los textos correctos
     });
 
-    /**
-     * Añade una nueva fila de producto al formulario.
-     */
+    function toggleHint() {
+        const type = document.getElementById('reception_type').value;
+        const lblSummary = document.getElementById('lbl_summary');
+        const helperSummary = document.getElementById('helper_summary');
+        const instruction = document.getElementById('instruction-text');
+        const qtyHeader = document.getElementById('qty-header');
+
+        if (type === 'CLAP') {
+            lblSummary.innerText = "N° de Bolsas/Combos recibidos";
+            helperSummary.innerText = "El sistema multiplicará el contenido por este número.";
+            instruction.innerHTML = '<i class="material-icons tiny">warning</i> <b>MODO CLAP:</b> Edite el contenido de <b>UNA SOLA BOLSA</b>.';
+            qtyHeader.innerText = "Cant. por Bolsa";
+        } else {
+            lblSummary.innerText = "Cantidad Resumen (Opcional)";
+            helperSummary.innerText = "Total de bultos/cestas (solo informativo).";
+            instruction.innerHTML = '<i class="material-icons tiny">info</i> Edite el total de productos recibidos.';
+            qtyHeader.innerText = "Cantidad Total";
+        }
+    }
+
     function addItem() {
         const container = document.getElementById('items-container');
         const row = document.createElement('div');
-        
-        row.classList.add('row', 'item-row');
+        row.classList.add('row', 'item-row', 'valign-wrapper');
         row.setAttribute('data-index', itemIndex);
 
         row.innerHTML = `
-            <div class="input-field col s3">
-                <input type="text" name="items[${itemIndex}][product_name]" placeholder="Nombre del producto" required>
+            <div class="input-field col s4">
+                <input type="text" name="items[${itemIndex}][product_name]" list="products-list-options" placeholder="Escriba para buscar..." required>
             </div>
             <div class="input-field col s3">
-                <input type="number" name="items[${itemIndex}][quantity]" placeholder="0" min="1" required>
+                <input type="number" name="items[${itemIndex}][quantity]" placeholder="0" step="0.01" min="0.01" required>
             </div>
             <div class="input-field col s3">
-                <input type="text" name="items[${itemIndex}][unit]" placeholder="Kg, unidad, lt" required>
+                <input type="text" name="items[${itemIndex}][unit]" placeholder="Kg" required>
             </div>
-            <div class="input-field col s3 center-align">
+            <div class="col s2 center-align">
                 <button type="button" class="btn-flat red-text remove-item" onclick="removeItem(this)">
                     <i class="material-icons">delete</i>
                 </button>
             </div>
         `;
         container.appendChild(row);
-        itemIndex++; // Incrementa el índice para el próximo elemento
-        
-        // Asegura que los botones de eliminar se muestren/oculten correctamente
+        itemIndex++;
         updateRemoveButtonVisibility();
     }
 
-    /**
-     * Elimina la fila de producto al que pertenece el botón pulsado.
-     */
-    function removeItem(buttonElement) {
-        const itemRow = buttonElement.closest('.item-row');
-        if (itemRow) {
-            itemRow.remove();
-        }
-        
-        // Reindexar los elementos para evitar huecos en el array POST
+    function removeItem(btn) {
+        const row = btn.closest('.item-row');
+        row.remove();
         reindexItems();
-        
-        // Asegura que al menos un ítem no tenga el botón de eliminar
         updateRemoveButtonVisibility();
     }
-    
-    /**
-     * Reindexa los nombres de los campos de input después de eliminar una fila.
-     * Esto asegura que PHP reciba un array secuencial correcto.
-     */
+
     function reindexItems() {
-        const container = document.getElementById('items-container');
-        const rows = container.querySelectorAll('.item-row');
-        
-        itemIndex = 0; // Reiniciamos el índice de JS
-        
-        rows.forEach((row, newIndex) => {
+        const rows = document.querySelectorAll('.item-row');
+        let newIndex = 0;
+        rows.forEach(row => {
             row.setAttribute('data-index', newIndex);
-            // Actualiza los nombres de los inputs
             row.querySelectorAll('input').forEach(input => {
-                const oldName = input.name;
-                // Usa expresiones regulares para reemplazar el índice numérico
-                input.name = oldName.replace(/items\[\d+\]/, `items[${newIndex}]`);
+                const nameParts = input.name.split(/\[\d+\]/); 
+                if (nameParts.length > 1) {
+                    input.name = `items[${newIndex}]${nameParts[1]}`;
+                }
             });
-            itemIndex = newIndex + 1; // Establece el nuevo índice para el próximo addItem
+            newIndex++;
         });
+        itemIndex = newIndex;
     }
 
-    /**
-     * Muestra el botón de eliminar en todas las filas EXCEPTO si solo queda una.
-     * Esto asegura que al menos un producto se envíe en el formulario.
-     */
     function updateRemoveButtonVisibility() {
-        const container = document.getElementById('items-container');
-        const rows = container.querySelectorAll('.item-row');
-        
+        const rows = document.querySelectorAll('.item-row');
         rows.forEach(row => {
-            const removeButton = row.querySelector('.remove-item');
-            if (removeButton) {
-                // Si solo queda una fila, deshabilitar el botón de eliminar
-                removeButton.style.display = rows.length > 1 ? '' : 'none';
-            }
+            const btn = row.querySelector('.remove-item');
+            if(btn) btn.style.display = rows.length > 1 ? '' : 'none';
         });
     }
 </script>
+
 <style>
-    /* Estilos opcionales para mejorar el aspecto de los ítems dinámicos */
-    .item-row {
-        border-bottom: 1px solid #e0e0e0;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-    }
-    .item-row:last-child {
-        border-bottom: none;
-    }
-    .remove-item {
-        /* Para que el botón de eliminar se alinee verticalmente con los campos */
-        margin-top: 1.5rem; 
-    }
+    .item-row { border-bottom: 1px solid #f1f1f1; margin-bottom: 0px; }
+    .row-header { background-color: #f5f5f5; padding: 10px 0; border-bottom: 2px solid #e0e0e0; }
+    input[list] { margin-bottom: 0; }
 </style>

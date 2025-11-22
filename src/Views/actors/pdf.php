@@ -11,12 +11,16 @@
         }
         h1, h2 {
             color: #333;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
         }
         .section {
             margin-bottom: 20px;
         }
         .label {
             font-weight: bold;
+            display: inline-block;
+            width: 150px; /* Ayuda a alinear las etiquetas */
         }
         /* Estilos para la lista de instituciones */
         .institution-list {
@@ -30,23 +34,37 @@
     </style>
 </head>
 <body>
-    <h1>Ficha del Actor</h1>
+    <h1>Ficha del Actor: <?php echo htmlspecialchars($actor->full_name); ?></h1>
+
     <div class="section">
         <h2>Información Personal</h2>
+        <p><span class="label">ID Actor:</span> <?php echo htmlspecialchars($actor->id); ?></p>
         <p><span class="label">Nombre Completo:</span> <?php echo htmlspecialchars($actor->full_name); ?></p>
-        <p><span class="label">Rol:</span> <?php 
-            // Implementación simple del match si tu motor de PDF lo soporta, o usar if/else
-            echo match ($actor->role ?? null) {
+        <p><span class="label">Cédula:</span> <?php echo htmlspecialchars($actor->national_id ?? '-'); ?></p>
+        <p><span class="label">Activo:</span> <?php echo $actor->active ? 'Sí' : 'No'; ?></p>
+    </div>
+    
+    <div class="section">
+        <h2>Información de Rol y Acceso</h2>
+        <p><span class="label">Rol Asignado:</span> <?php 
+            // Manejo del rol para la presentación final
+            $role_display = match ($actor->role ?? null) {
                 'admin' => 'Administrador',
                 'inspector' => 'Inspector',
                 'vocero_parroquial' => 'Vocero Parroquial',
                 'vocero_institucional' => 'Vocero Institucional',
                 'director' => 'Director',
                 'cocinero' => 'Cocinero/a',
-                default => htmlspecialchars($actor->role ?? '-'),
-            }; 
+                default => htmlspecialchars($actor->role ?? 'No Definido'),
+            };
+            echo $role_display; 
         ?></p>
-        <p><span class="label">Activo:</span> <?php echo $actor->active ? 'Sí' : 'No'; ?></p>
+        <p><span class="label">Usuario de Acceso:</span> 
+            <?php echo htmlspecialchars($actor->user_name ?? 'Ninguno (No tiene cuenta de login)'); ?>
+        </p>
+        <?php if ($actor->user_name): ?>
+            <p><span class="label">ID de Usuario (Login):</span> <?php echo htmlspecialchars($actor->user_id ?? 'N/A'); ?></p>
+        <?php endif; ?>
     </div>
     
     <div class="section">
@@ -62,10 +80,6 @@
         <?php else: ?>
             <p>Ninguna institución vinculada.</p>
         <?php endif; ?>
-    </div>
-    <div class="section">
-        <h2>Usuario Vinculado</h2>
-        <p><?php echo $actor->user_name ? htmlspecialchars($actor->user_name) : 'Ninguno'; ?></p>
     </div>
 </body>
 </html>

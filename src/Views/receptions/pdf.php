@@ -4,113 +4,100 @@
     <meta charset="UTF-8">
     <title>Acta de Recepción N° <?= htmlspecialchars($reception->id) ?></title>
     <style>
-        /* Usamos una fuente genérica compatible con Dompdf */
-        body { font-family: DejaVu Sans, sans-serif; font-size: 11px; margin: 30px; }
+        /* Estilos generales compatibles con Dompdf */
+        body { font-family: sans-serif; font-size: 12px; margin: 20px 40px; color: #333; }
         
-        /* Encabezado */
-        h2 { 
-            text-align: center; 
-            margin-bottom: 5px; 
-            color: #333; 
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 5px;
-        }
-        h3 { 
-            text-align: center; 
-            margin-top: 0; 
-            font-size: 14px;
-            font-weight: normal;
-        }
+        /* Encabezado con Logo y Título */
+        .header-container { width: 100%; border-bottom: 2px solid #444; padding-bottom: 10px; margin-bottom: 20px; }
+        .logo { width:100%; float: left; }
+        .logo img { max-width: 100px; }
+        .title-section { width: 80%; float: right; text-align: right; }
+        .title-section h2 { margin: 0; font-size: 18px; text-transform: uppercase; color: #2c3e50; }
+        .title-section h3 { margin: 5px 0 0; font-size: 14px; font-weight: normal; color: #7f8c8d; }
         
-        /* Secciones de Datos Generales */
-        .header-info, .actors-info {
+        /* Limpiar flotados */
+        .clearfix { clear: both; }
+
+        /* Cajas de Información */
+        .info-box {
             width: 100%;
-            border: 1px solid #ccc;
+            margin-bottom: 20px;
             padding: 10px;
-            margin-bottom: 15px;
-            display: block; /* Asegura que ocupe todo el ancho */
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        .header-info strong { width: 150px; display: inline-block; }
-        .actors-info strong { width: 180px; display: inline-block; }
+        .row { width: 100%; display: block; margin-bottom: 5px; }
+        .label { font-weight: bold; width: 180px; display: inline-block; color: #555; }
+        .value { color: #000; font-weight: bold; }
 
-        /* Tabla de Productos (Ítems) */
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 25px; 
-            font-size: 10px;
-        }
-        td, th { 
-            border: 1px solid #000; 
-            padding: 8px; 
-            text-align: left;
-        }
-        th {
-            background-color: #eee;
-            text-align: center;
-            font-weight: bold;
-        }
+        /* Tabla de Productos */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background-color: #2c3e50; color: #fff; padding: 8px; text-align: center; font-size: 11px; text-transform: uppercase; }
+        td { border-bottom: 1px solid #ddd; padding: 8px; text-align: left; color: #444; }
+        td.center { text-align: center; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
 
-        /* Observaciones */
-        .notes-section { margin-top: 20px; }
-        .notes-box {
-            border: 1px solid #000;
-            padding: 10px;
-            min-height: 50px;
-        }
+        /* Notas y Firmas */
+        .notes-section { margin-top: 20px; border: 1px solid #ccc; padding: 10px; min-height: 60px; font-style: italic; font-size: 11px; }
+        .signatures { margin-top: 60px; width: 100%; }
+        .sig-box { width: 45%; display: inline-block; text-align: center; vertical-align: top; }
+        .sig-line { border-top: 1px solid #000; margin: 0 20px; padding-top: 5px; font-weight: bold; }
+        .sig-role { font-size: 10px; color: #666; margin-top: 2px; }
 
-        /* Firmas */
-        .signatures-table { 
-            margin-top: 80px; /* Más espacio para las firmas */
-            border: none; 
-        }
-        .signatures-table td {
-            border: none;
-            padding: 20px 0;
-            text-align: center;
-        }
-        .signature-line {
-            border-top: 1px solid #000;
-            padding-top: 5px;
-            margin-top: 40px; /* Línea de la firma */
-            font-weight: bold;
-        }
-        .role {
-            font-size: 10px;
-            font-style: italic;
-        }
+        /* Destacado para CLAP */
+        .highlight-clap { color: #e74c3c; font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body>
-    <h2>ACTA DE RECEPCIÓN DE VÍVERES</h2>
-    <h3>Registro N° <?= htmlspecialchars($reception->id) ?></h3>
 
-    <!-- 1. INFORMACIÓN DE LA RECEPCIÓN -->
-    <div class="header-info">
-        <strong>Fecha de Recepción:</strong> <?= date('d/m/Y', strtotime($reception->date)) ?><br>
-        <strong>Tipo de Recepción:</strong> <?= htmlspecialchars($reception->reception_type) ?><br>
-        <?php if ($reception->summary_quantity > 0): ?>
-            <strong>Cantidad Resumen (Bolsas):</strong> <?= (int)$reception->summary_quantity ?><br>
+    <div class="header-container">
+        <div class="logo">
+            <img src="http://imgfz.com/i/u2oODP0.png" alt="Logo">
+        </div>
+        <div class="title-section">
+            <h2>ACTA DE RECEPCIÓN - <?= htmlspecialchars($reception->reception_type) ?></h2>
+            <h3>Control N° <?= str_pad($reception->id, 6, '0', STR_PAD_LEFT) ?></h3>
+            <p style="margin: 5px 0 0; font-size: 11px;">Fecha: <?= date('d/m/Y', strtotime($reception->date)) ?></p>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
+    <div class="info-box">
+        <div class="row">
+            <span class="label">Tipo de Recepción:</span>
+            <span class="value"><?= htmlspecialchars($reception->reception_type) ?></span>
+        </div>
+
+        <?php if ($reception->reception_type === 'CLAP' && $reception->summary_quantity > 0): ?>
+            <div class="row">
+                <span class="label">Total Bolsas/Combos:</span>
+                <span class="value highlight-clap"><?= number_format($reception->summary_quantity, 0, ',', '.') ?> UNIDADES</span>
+            </div>
+        <?php elseif ($reception->summary_quantity > 0): ?>
+            <div class="row">
+                <span class="label">Cantidad Bultos (Ref):</span>
+                <span class="value"><?= $reception->summary_quantity ?></span>
+            </div>
         <?php endif; ?>
+
+        <div class="row">
+            <span class="label">Inspector Responsable:</span>
+            <span class="value"><?= htmlspecialchars($reception->inspector_name) ?></span>
+        </div>
+        <div class="row">
+            <span class="label">Vocero Parroquial:</span>
+            <span class="value"><?= htmlspecialchars($reception->vocero_parroquial_name) ?></span>
+        </div>
     </div>
 
-    <!-- 2. ACTORES RESPONSABLES -->
-    <div class="actors-info">
-        <strong>Inspector Responsable:</strong> <?= htmlspecialchars($reception->inspector_name) ?><br>
-        <strong>Vocero Parroquial:</strong> <?= htmlspecialchars($reception->vocero_parroquial_name) ?>
-    </div>
-
-    <!-- 3. DETALLE DE PRODUCTOS RECIBIDOS -->
+    <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 5px; color: #444;">DETALLE DEL INVENTARIO INGRESADO</h3>
     <table>
         <thead>
             <tr>
-                <th colspan="4">DETALLE DE PRODUCTOS RECIBIDOS</th>
-            </tr>
-            <tr>
-                <th style="width: 50%;">Producto</th>
-                <th style="width: 20%;">Cantidad</th>
-                <th style="width: 15%;">Unidad</th>
-                <th style="width: 15%;">Observaciones Ítem</th>
+                <th width="50%">Producto</th>
+                <th width="25%">Cantidad Total (Kg/Und)</th>
+                <th width="25%">Unidad de Medida</th>
             </tr>
         </thead>
         <tbody>
@@ -118,49 +105,42 @@
                 <?php foreach ($items as $item): ?>
                     <tr>
                         <td><?= htmlspecialchars($item->product_name) ?></td>
-                        <td style="text-align: center;"><?= htmlspecialchars($item->quantity) ?></td>
-                        <td style="text-align: center;"><?= htmlspecialchars($item->unit) ?></td>
-                        <td>
-                            <?php 
-                            // Asumiendo que hay una columna 'notes' en reception_items, si no, puedes eliminar esto
-                            echo htmlspecialchars($item->notes ?? 'N/A'); 
-                            ?>
-                        </td>
+                        <td class="center"><strong><?= number_format($item->quantity, 1, ',', '.') ?></strong></td>
+                        <td class="center"><?= htmlspecialchars($item->unit) ?></td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="4" style="text-align: center;">No se registraron productos en esta recepción.</td>
+                    <td colspan="3" class="center">No hay productos registrados en esta recepción.</td>
                 </tr>
             <?php endif; ?>
         </tbody>
     </table>
 
-    <!-- 4. OBSERVACIONES GENERALES -->
-    <div class="notes-section">
-        <strong>Observaciones Generales:</strong>
-        <div class="notes-box">
-            <?= nl2br(htmlspecialchars($reception->notes)) ?>
+    <?php if ($reception->reception_type === 'CLAP' && $reception->summary_quantity > 0): ?>
+        <p style="font-size: 10px; color: #666; margin-top: 5px;">
+            * Nota: Las cantidades totales reflejadas arriba corresponden a la multiplicación del contenido unitario por las 
+            <strong><?= $reception->summary_quantity ?></strong> bolsas recibidas.
+        </p>
+    <?php endif; ?>
+
+    <div style="margin-top: 20px;">
+        <strong>Observaciones:</strong>
+        <div class="notes-section">
+            <?= !empty($reception->notes) ? nl2br(htmlspecialchars($reception->notes)) : 'Sin observaciones adicionales.' ?>
         </div>
     </div>
-    
-    <!-- 5. FIRMAS -->
-    <table class="signatures-table">
-        <tr>
-            <td style="width: 50%;">
-                <div class="signature-line">
-                    <?= htmlspecialchars($reception->inspector_name) ?>
-                </div>
-                <div class="role">Inspector Responsable</div>
-            </td>
-            <td style="width: 50%;">
-                <div class="signature-line">
-                    <?= htmlspecialchars($reception->vocero_parroquial_name) ?>
-                </div>
-                <div class="role">Vocero Parroquial</div>
-            </td>
-        </tr>
-    </table>
+
+    <div class="signatures">
+        <div class="sig-box">
+            <div class="sig-line"><?= htmlspecialchars($reception->inspector_name) ?></div>
+            <div class="sig-role">Inspector (Firma y Sello)</div>
+        </div>
+        <div class="sig-box" style="float: right;">
+            <div class="sig-line"><?= htmlspecialchars($reception->vocero_parroquial_name) ?></div>
+            <div class="sig-role">Vocero Parroquial (Firma y Sello)</div>
+        </div>
+    </div>
 
 </body>
 </html>

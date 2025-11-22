@@ -17,6 +17,6 @@ define('ROOT_PATH', realpath(dirname(__FILE__)) . '/');
 define('ASSETS_PATH', BASE_URL . 'assets/');
 define('CSS_PATH', BASE_URL . 'css/');
 define('JS_PATH', BASE_URL . 'js/');
-define('IMG_PATH', BASE_URL . 'images/');
+define('IMG_PATH', BASE_URL . 'img/');
 define('VENDOR_PATH', BASE_URL . 'vendors/');
 ?>

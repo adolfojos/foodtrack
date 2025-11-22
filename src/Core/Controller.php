@@ -73,6 +73,28 @@ abstract class Controller {
             die("Error: View '$view' not found.");
         }
     }
+
+    /**
+     * Establece un mensaje de ÉXITO y redirige a la ruta especificada.
+     * @param string $route La ruta de destino (ej: 'actors' o 'actors/detail/10').
+     * @param string $message El mensaje de éxito.
+     */
+    protected function redirectWithSuccess(string $route, string $message) {
+        $this->setFlashMessage('success', $message);
+        header('Location: ' . BASE_URL . $route);
+        exit;
+    }
+
+    /**
+     * Establece un mensaje de ERROR y redirige a la ruta especificada.
+     * @param string $route La ruta de destino.
+     * @param string $message El mensaje de error.
+     */
+    protected function redirectWithError(string $route, string $message) {
+        $this->setFlashMessage('error', $message);
+        header('Location: ' . BASE_URL . $route);
+        exit;
+    }
     
     /**
      * Establece un mensaje flash en la sesión.

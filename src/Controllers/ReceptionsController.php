@@ -20,170 +20,267 @@ class ReceptionsController extends Controller
         $this->actorModel = new Actor();
     }
 
-    /**
-     * Listado de recepciones
-     */
     public function index()
     {
         $receptions = $this->receptionModel->findAllWithActors();
         $this->render('receptions/list', [
-            'title' => 'Recepciones mensuales',
+            'title' => 'Recepciones Mensuales',
             'receptions' => $receptions
         ]);
     }
-    public function detail(int $id)
-    {
-        // 1. Instanciar el modelo de Recepción
-        $receptionModel = new Reception();
 
-        // 2. Obtener la cabecera de la recepción y los nombres de los actores
-        $reception = $receptionModel->findByIdWithActors($id);
-
-        // 3. Verificar si la recepción existe
-        if (!$reception) {
-            // Manejo de error: la recepción no fue encontrada. 
-            // Podrías redirigir al listado o a una página 404.
-            // Ejemplo de redirección:
-            // header('Location: ' . BASE_URL . 'receptions');
-            // exit;
-            
-            // Por ahora, solo puedes mostrar un mensaje de error si no existe.
-            echo "Error: Recepción con ID {$id} no encontrada.";
-            return; 
-        }
-
-        // 4. Obtener la lista de ítems (productos) asociados a esta recepción
-        $items = $receptionModel->getItemsByReceptionId($id);
-
-        // 5. Cargar la vista de detalle, pasando todos los datos
-        $this->render('receptions/detail', [
-            'reception' => $reception, // Contiene cabecera y nombres de actores
-            'items' => $items,         // Contiene el detalle de productos
-            'title' => 'Detalle de Recepción N° ' . $id
-        ]);
-    }
-    /**
-     * Formulario de creación
-     */
-    public function create()
+public function create()
     {
         $inspectors = $this->actorModel->findByRole('inspector');
         $spokespersons = $this->actorModel->findByRole('vocero_parroquial');
         
-        // NOTA: Debes añadir 'CLAP', 'FRUVERT', 'PROTEINA' a tu vista 'receptions/form'
-        $receptionTypes = ['CLAP', 'FRUVERT', 'PROTEINA']; 
+        // NUEVO: Obtenemos la lista de productos
+        $productsList = $this->receptionModel->getAllProductNames();
+
+        $receptionTypes = ['CLAP', 'FRUVERT', 'PROTEINA', 'OTRO']; 
 
         $this->render('receptions/form', [
-            'title' => 'Nueva recepción',
+            'title' => 'Nueva Recepción',
             'inspectors' => $inspectors,
             'spokespersons' => $spokespersons,
-            'receptionTypes' => $receptionTypes // Nuevo: Tipos de recepción
+            'receptionTypes' => $receptionTypes,
+            'productsList' => $productsList // <--- Pasamos la variable aquí
         ]);
     }
 
-    /**
-     * Guardar recepción (POST)
-     * CORRECCIÓN PRINCIPAL AQUÍ:
-     * 1. Recibe 'reception_type' y 'summary_quantity'.
-     * 2. Elimina la referencia a 'total_bags'.
-     * 3. Se asume que el input de ítems (product_name, quantity, unit) viene en un array POST (ej. $_POST['items']).
-     */
     public function save()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
-            // 1. Datos de la Cabecera (Maestro)
+            // 1. Recoger datos
             $date = $_POST['date'] ?? null;
             $inspector_id = $_POST['inspector_id'] ?? null;
             $vocero_parroquial_id = $_POST['vocero_parroquial_id'] ?? null;
-            
-            // Nuevos campos
             $reception_type = $_POST['reception_type'] ?? null;
-            // Usamos la nueva columna y la convertimos a INT (NULL si está vacía)
-            $summary_quantity = (int)($_POST['summary_quantity'] ?? 0); 
+            $summary_quantity = (int)($_POST['summary_quantity'] ?? 0);
             $notes = $_POST['notes'] ?? '';
-            
-            // Los ítems vienen como un array (Asumimos una estructura en la vista)
-            $items = $_POST['items'] ?? []; 
-            
+            $items = $_POST['items'] ?? []; // Array de items
+
+            // 2. Validación
             if (!$date || !$inspector_id || !$vocero_parroquial_id || !$reception_type || empty($items)) {
-                $this->setFlashMessage('error', 'Faltan datos obligatorios para la recepción o los ítems.');
+                $this->setFlashMessage('error', 'Faltan datos obligatorios.');
                 header('Location: ' . BASE_URL . 'receptions/create');
                 exit;
             }
 
-            // --- INSERCIÓN DE LA CABECERA (MAESTRO) ---
+            // 3. Crear Cabecera
             $receptionId = $this->receptionModel->createReception([
                 'date' => $date,
                 'inspector_id' => $inspector_id,
                 'vocero_parroquial_id' => $vocero_parroquial_id,
-                'reception_type' => $reception_type, // Nuevo campo
-                // Si no es CLAP, summary_quantity será 0, lo cual se convierte a NULL en la DB
-                // si definiste la columna como INT NULL. Si no, déjalo en 0.
-                'summary_quantity' => $summary_quantity > 0 ? $summary_quantity : null,
+                'reception_type' => $reception_type,
+                'summary_quantity' => $summary_quantity,
                 'notes' => $notes
             ]);
-            
-            // Si la inserción de la cabecera fue exitosa, procedemos con los ítems
+
             if ($receptionId) {
-                // --- INSERCIÓN DE LOS DETALLES (ITEMS) ---
+                
+                // --- LÓGICA DE MULTIPLICACIÓN ---
+                // Si es CLAP y hay X bolsas, multiplicamos el contenido por X.
+                // Si es otra cosa, multiplicamos por 1 (se queda igual).
+                $multiplier = 1;
+                if ($reception_type === 'CLAP' && $summary_quantity > 0) {
+                    $multiplier = $summary_quantity;
+                }
+
+                // 4. Procesar Items
                 foreach ($items as $item) {
-                    if (!empty($item['product_name']) && !empty($item['quantity'])) {
-                        $this->receptionModel->createReceptionItem($receptionId, $item);
+                    $name = trim($item['product_name'] ?? '');
+                    $qtyPerUnit = (float)($item['quantity'] ?? 0); // Cantidad unitaria (ej: 3 arroz por bolsa)
+                    $unit = trim($item['unit'] ?? 'unidad');
+
+                    if (!empty($name) && $qtyPerUnit > 0) {
+                        
+                        // A. Obtener ID del producto (o crearlo)
+                        $productId = $this->receptionModel->getOrCreateProduct($name, $unit);
+
+                        if ($productId) {
+                            // B. Calcular TOTAL REAL para inventario
+                            // Ejemplo: 3 arroz * 386 bolsas = 1158 arroz total
+                            $totalRealQty = $qtyPerUnit * $multiplier;
+
+                            // C. Guardar Item
+                            $this->receptionModel->createReceptionItem(
+                                $receptionId, 
+                                $productId, 
+                                $totalRealQty, 
+                                $unit
+                            );
+                        }
                     }
                 }
+
+                $msg = "Recepción guardada.";
+                if ($multiplier > 1) {
+                    $msg .= " Se calculó el inventario total multiplicando por $multiplier bolsas.";
+                }
+
+                $this->setFlashMessage('success', $msg);
+                header('Location: ' . BASE_URL . 'receptions');
+                exit;
+            } else {
+                $this->setFlashMessage('error', 'Error al guardar en base de datos.');
+                header('Location: ' . BASE_URL . 'receptions/create');
+                exit;
             }
-
-
-            $this->setFlashMessage('success', 'Recepción y sus ítems registrados correctamente.');
-            header('Location: ' . BASE_URL . 'receptions');
-            exit;
         }
     }
-
-    /**
-     * Eliminar recepción
-     * NOTA: Debido al ON DELETE CASCADE en la DB, al borrar la recepción,
-     * todos sus items asociados en 'reception_items' se borrarán automáticamente.
+/**
+     * Formulario de EDICIÓN
      */
-    public function delete(int $id)
+    public function edit(int $id)
     {
-        $this->receptionModel->delete($id);
-        $this->setFlashMessage('success', 'Recepción eliminada.');
-        header('Location: ' . BASE_URL . 'receptions');
-        exit;
-    }
-
-    /**
-     * Generar PDF
-     * CORRECCIÓN: Se debe obtener la lista de ítems para el PDF.
-     */
-    public function pdf(int $id)
-    {
+        // 1. Obtener datos básicos
         $reception = $this->receptionModel->findByIdWithActors($id);
-        $items = $this->receptionModel->getItemsByReceptionId($id); // ¡NUEVO!
-
         if (!$reception) {
             $this->setFlashMessage('error', 'Recepción no encontrada.');
             header('Location: ' . BASE_URL . 'receptions');
             exit;
         }
 
-        // Configuración de Dompdf
+        // 2. Obtener items
+        $items = $this->receptionModel->getItemsByReceptionId($id);
+
+        // 3. LOGICA INVERSA PARA CLAP:
+        // Si es CLAP, en la BD está el TOTAL (ej: 1000kg). 
+        // Pero en el form queremos mostrar "por bolsa" (ej: 1kg) para que el usuario pueda editar.
+        if ($reception->reception_type === 'CLAP' && $reception->summary_quantity > 0) {
+            foreach ($items as $item) {
+                // Revertimos la multiplicación para mostrar la unidad original
+                $item->quantity = $item->quantity / $reception->summary_quantity;
+            }
+        }
+
+        // 4. Cargar datos auxiliares
+        $inspectors = $this->actorModel->findByRole('inspector');
+        $spokespersons = $this->actorModel->findByRole('vocero_parroquial');
+        $productsList = $this->receptionModel->getAllProductNames(); // Autocompletado
+        $receptionTypes = ['CLAP', 'FRUVERT', 'PROTEINA', 'OTRO'];
+
+        // 5. Renderizar vista (usamos el mismo form.php pero con datos)
+        $this->render('receptions/form', [
+            'title' => 'Editar Recepción #' . $id,
+            'reception' => $reception, // Variable clave para saber que es edición
+            'items' => $items,
+            'inspectors' => $inspectors,
+            'spokespersons' => $spokespersons,
+            'receptionTypes' => $receptionTypes,
+            'productsList' => $productsList
+        ]);
+    }
+
+    /**
+     * Procesar la ACTUALIZACIÓN
+     */
+    public function update(int $id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Recoger datos (Igual que en save)
+            $date = $_POST['date'] ?? null;
+            $inspector_id = $_POST['inspector_id'] ?? null;
+            $vocero_parroquial_id = $_POST['vocero_parroquial_id'] ?? null;
+            $reception_type = $_POST['reception_type'] ?? null;
+            $summary_quantity = (int)($_POST['summary_quantity'] ?? 0);
+            $notes = $_POST['notes'] ?? '';
+            $items = $_POST['items'] ?? [];
+
+            // Actualizar Cabecera
+            $this->receptionModel->updateReception($id, [
+                'date' => $date,
+                'inspector_id' => $inspector_id,
+                'vocero_parroquial_id' => $vocero_parroquial_id,
+                'reception_type' => $reception_type,
+                'summary_quantity' => $summary_quantity,
+                'notes' => $notes
+            ]);
+
+            // --- TRATAMIENTO DE ITEMS ---
+            // 1. Borramos los items viejos (es más seguro que intentar actualizarlos uno por uno)
+            $this->receptionModel->deleteAllItemsByReceptionId($id);
+
+            // 2. Calculamos multiplicador (Igual que en save)
+            $multiplier = 1;
+            if ($reception_type === 'CLAP' && $summary_quantity > 0) {
+                $multiplier = $summary_quantity;
+            }
+
+            // 3. Re-insertamos los items nuevos/editados
+            foreach ($items as $item) {
+                $name = trim($item['product_name'] ?? '');
+                $qtyPerUnit = (float)($item['quantity'] ?? 0);
+                $unit = trim($item['unit'] ?? 'unidad');
+
+                if (!empty($name) && $qtyPerUnit > 0) {
+                    $productId = $this->receptionModel->getOrCreateProduct($name, $unit);
+                    if ($productId) {
+                        $totalRealQty = $qtyPerUnit * $multiplier;
+                        $this->receptionModel->createReceptionItem($id, $productId, $totalRealQty, $unit);
+                    }
+                }
+            }
+
+            $this->setFlashMessage('success', 'Recepción actualizada correctamente.');
+            header('Location: ' . BASE_URL . 'receptions');
+            exit;
+        }
+    }
+    
+    public function detail(int $id)
+    {
+        $reception = $this->receptionModel->findByIdWithActors($id);
+        if (!$reception) {
+            echo "Recepción no encontrada."; return;
+        }
+        $items = $this->receptionModel->getItemsByReceptionId($id);
+
+        $this->render('receptions/detail', [
+            'reception' => $reception,
+            'items' => $items,
+            'title' => 'Detalle de Recepción #' . $id
+        ]);
+    }
+
+    public function pdf(int $id)
+    {
+        // ... (Tu código de PDF se mantiene igual, solo asegúrate de cargar los items)
+        $reception = $this->receptionModel->findByIdWithActors($id);
+        $items = $this->receptionModel->getItemsByReceptionId($id);
+
+        if (!$reception) { header('Location:'.BASE_URL.'receptions'); exit; }
+
         $options = new Options();
         $options->set('isRemoteEnabled', true);
         $dompdf = new Dompdf($options);
 
-        // Renderizamos la vista como HTML
         ob_start();
-        // Se pasa la variable $items a la vista pdf.php
         include __DIR__ . '/../Views/receptions/pdf.php'; 
         $html = ob_get_clean();
 
-        // ... resto del código Dompdf ...
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-        $dompdf->stream("Acta_Recepcion_{$reception->id}.pdf", ["Attachment" => false]);
+        $dompdf->stream("Acta_$id.pdf", ["Attachment" => false]);
+    }
+    
+public function delete(int $id) {
+        $receptionModel = new Reception();
+        
+        // Intentar eliminar la recepción y sus ítems
+        if ($receptionModel->deleteReception($id)) {
+            // Éxito: Redirigir al listado con un mensaje de éxito
+            $this->setFlashMessage('success', "La recepción N° $id y sus ítems asociados fueron eliminados correctamente.");
+        } else {
+            // Error: Redirigir al listado con un mensaje de error
+            $this->setFlashMessage('error', "Error al intentar eliminar la recepción N° $id. Por favor, intente de nuevo.");
+        }
+        
+        // Redirigir a la vista de listado
+
+        header('Location: ' . BASE_URL . 'receptions');
     }
 }

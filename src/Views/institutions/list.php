@@ -18,7 +18,6 @@
     <div class="conten-body">
         <div class="col s12 m12 l12">
             <div class="card-panel">
-                <!-- Título y botón -->
                 <div class="card-title">
                     <div class="row">
                         <div class="header-title-left col s12 m6">
@@ -31,45 +30,40 @@
                         </div>
                     </div>
                 </div> 
-                <!-- Tabla de institutions -->
                 <div class="row row-end">
                     <div class="col s12">
-<table id="institutions" class="datatable bordered highlight table-responsive">
-<thead>
-<tr>
-<th data-priority="0" class="hide-on-small-only">Nombre</th>
-<th data-priority="1" class="hide-on-small-only">Director</th> 
-<th data-priority="2" class="no-sort">Acciones</th>
-</tr>
-</thead>
-<tbody>
-<?php if (!empty($institutions)): ?>
-<?php foreach ($institutions as $inst): ?>
-<tr id="<?php echo $inst->id; ?>" class="row_table">
-<td class="hide-on-small-only nowrap">
-<?= htmlspecialchars($inst->name) ?>
-</td>
-<td class="hide-on-small-only">
-<?= htmlspecialchars($inst->director_names ?? 'N/A') ?>
-</td>
-<td class="adjusted-size">
-<a title="Detalle" href="<?=BASE_URL?>institutions/detail/<?php echo $inst->id; ?>"><i class="ico-visibility tiny"></i></a>
-<a title="Editar" href="<?= BASE_URL ?>institutions/create/<?php echo $inst->id; ?>"><i class="ico-edit tiny"></i></a>
-<a title="Eliminar" href="<?= BASE_URL ?>institutions/delete/<?php echo $inst->id; ?>" onclick="return confirm('¿Estás seguro que deseas eliminar la institución <?php echo $inst->name ?>?')"><i class="ico-delete tiny"></i></a>
-<a title="PDF" href="<?=BASE_URL?>institutions/pdf/<?php echo $inst->id; ?>"><i class="material-icons">picture_as_pdf</i></a>
-</td>
-</tr>
-<?php endforeach; ?>
-<?php else: ?>
-<tr class="odd">
-<td colspan="4" class="dataTables_empty">No hay datos disponibles en esta tabla</td>
-</tr>
-<?php endif; ?>
-</tbody>
-</table>
+                        <table id="institutions" class="datatable bordered highlight table-responsive">
+                            <thead>
+                                <tr>
+                                    <th data-priority="0" class="hide-on-small-only">Nombre</th>
+                                    <th data-priority="1" class="hide-on-small-only">Director</th>
+                                    <th data-priority="2" class="no-sort">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($institutions)): ?>
+                                <?php foreach ($institutions as $inst): ?>
+                                <tr id="<?php echo $inst->id; ?>" class="row_table">
+                                    <td class="hide-on-small-only nowrap"><?= htmlspecialchars($inst->name) ?></td>
+                                    <td class="hide-on-small-only"><?= htmlspecialchars($inst->director_names ?? 'N/A') ?></td>
+                                    <td class="adjusted-size">
+                                        <a title="Detalle" href="<?=BASE_URL?>institutions/detail/<?php echo $inst->id; ?>"><i class="ico-visibility tiny"></i></a>
+                                        <a title="Editar" href="<?= BASE_URL ?>institutions/create/<?php echo $inst->id; ?>"><i class="ico-edit tiny"></i></a>
+                                        <a title="Eliminar" href="<?= BASE_URL ?>institutions/delete/<?php echo $inst->id; ?>" onclick="return confirm('¿Estás seguro que deseas eliminar la institución <?php echo $inst->name ?>?')"><i class="ico-delete tiny"></i></a>
+                                        <a title="PDF" href="<?=BASE_URL?>institutions/pdf/<?php echo $inst->id; ?>"><i class="material-icons">picture_as_pdf</i></a>
+                                    </td>
+                                </tr>
+                                    <?php endforeach; ?>
+                                    <?php else: ?>
+                                <tr class="odd">
+                                    <td colspan="4" class="dataTables_empty">No hay datos disponibles en esta tabla</td>
+                                </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div> <!-- card-panel -->
         </div> <!-- col -->
     </div> <!-- conten-body -->
-</article>
+</article> <!-- article -->

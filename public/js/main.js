@@ -1,3 +1,15 @@
+function toggleInstitutionBlock() {
+    const role = document.getElementById('role').value;
+    const block = document.getElementById('institutionBlock');
+    if (role === 'director' || role === 'vocero_institucional') {
+        block.style.display = 'block';
+    } else {
+        block.style.display = 'none';
+    }
+}
+
+// Ejecutar al cargar la página (por si ya hay un rol seleccionado)
+document.addEventListener('DOMContentLoaded', toggleInstitutionBlock);
 $(function () {
     // Deshabilitar botones de submit en los formularios al enviar el formulario.
     $('form').submit(function () {

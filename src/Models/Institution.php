@@ -51,7 +51,6 @@ public function findAllWithDirectors()
     $stmt = $this->pdo->query($sql);
     return $stmt->fetchAll(PDO::FETCH_OBJ);
 }
-
     /**
      * Buscar institución por ID
      */

@@ -7,7 +7,7 @@
         <meta name="msapplication-TileImage" content="/ms-icon-144x144.png"/>
         <meta name="theme-color" content="#ffffff"/>
         <meta name="format-detection" content="telephone=no"/>
-        <title><?php echo $title ?? 'foodtrack Support'; ?></title>
+        <title><?php echo $title ?? 'CNAE Buria'; ?></title>
         <link rel="stylesheet" type="text/css" href="<?= VENDOR_PATH ?>material-icons/material-icons.css"/>
         <link rel="stylesheet" type="text/css" href="<?= VENDOR_PATH ?>materialize-src/sass/materialize.min.css"/>
         <link rel="stylesheet" type="text/css" href="<?= VENDOR_PATH ?>materialize-datatables/css/dataTables.materialize.css"/>
@@ -28,13 +28,13 @@
                                 <li class="first active">
                                     <a href="<?= BASE_URL ?>">
                                     <i class="ico-dash_coin"></i>
-                                    <span class="hide-on-small-only">foodtrack</span>
+                                    <span class="hide-on-small-only">CNAE Buria</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="<?= BASE_URL ?>institutions" title="Institutions">
+                                    <a href="<?= BASE_URL ?>institutions" title="Instituciones">
                                     <i class="material-icons">account_balance</i>
-                                    <span class="hide-on-small-only">Institutions</span>
+                                    <span class="hide-on-small-only">Instituciones</span>
                                     </a>
                                 </li>
                                 <li>
@@ -60,12 +60,6 @@
                                     <a href="<?= BASE_URL ?>dailyreports" title="Daily Reports">
                                     <i class="material-icons">local_shipping</i>
                                     <span class="hide-on-small-only">Daily Reports</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="<?= BASE_URL ?>users" title="Users">
-                                    <i class="material-icons">people</i>
-                                    <span class="hide-on-small-only">Users</span>
                                     </a>
                                 </li>
                                 <?php endif; ?>

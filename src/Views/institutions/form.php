@@ -37,41 +37,13 @@
                         <input type="hidden" name="id" value="<?= $institution->id ?>">
                         <?php endif; ?>
                         <div class="row">
-                            <div class="input-field col s6">
+                            <div class="input-field col s12">
                                 <input type="text" name="name" id="name" value="<?= $institution->name ?? '' ?>" required>
                                 <label for="name" class="active">Nombre de la institución</label>
                             </div>
-                            <div class="input-field col s6">
-                                <input type="text" name="campus_code" id="campus_code" value="<?= $institution->campus_code ?? '' ?>">
-                                <label for="campus_code" class="active">Código Plantel</label>
-                            </div>
                         </div>
                         <div class="row">
-                            <div class="input-field col s6">
-                                <input type="text" name="sica_code" id="sica_code" value="<?= $institution->sica_code ?? '' ?>">
-                                <label for="sica_code" class="active">Código SICA</label>
-                            </div>
-                            <div class="input-field col s6">
-                                <input type="text" name="phone" id="phone" value="<?= $institution->phone ?? '' ?>">
-                                <label for="phone" class="active">Teléfono</label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-field col s6">
-                                <input type="text" name="municipality" id="municipality" value="<?= $institution->municipality ?? '' ?>">
-                                <label for="municipality" class="active">Municipio</label>
-                            </div>
-                            <div class="input-field col s6">
-                                <input type="text" name="parish" id="parish" value="<?= $institution->parish ?? '' ?>">
-                                <label for="parish" class="active">Parroquia</label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-field col s6">
-                                <input type="number" name="total_enrollment" id="total_enrollment" value="<?= $institution->total_enrollment ?? '' ?>">
-                                <label for="total_enrollment" class="active">Matrícula Total</label>
-                            </div>
-                            <div class="input-field col s6">
+                            <div class="input-field col s12">
                                 <select name="director_ids[]" id="director_ids" multiple>
                                     <option value="" disabled>Selecciona un director</option>
                                     <?php if (!empty($allDirectors)): ?>
@@ -90,16 +62,56 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col s12 m12 l12">
+                            <div class="input-field col s6">
+                                <input type="text" name="campus_code" id="campus_code" value="<?= $institution->campus_code ?? '' ?>">
+                                <label for="campus_code" class="active">Código Plantel</label>
+                            </div>
+                            <div class="input-field col s6">
+                                <input type="text" name="sica_code" id="sica_code" value="<?= $institution->sica_code ?? '' ?>">
+                                <label for="sica_code" class="active">Código SICA</label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <input type="text" name="phone" id="phone" value="<?= $institution->phone ?? '' ?>">
+                                <label for="phone" class="active">Teléfono</label>
+                            </div>
+                            <div class="input-field col s6">
+                                <input type="email" name="email" id="email" value="">
+                                <label for="email" class="active">Correo</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <input type="text" name="municipality" id="municipality" value="<?= $institution->municipality ?? '' ?>">
+                                <label for="municipality" class="active">Municipio</label>
+                            </div>
+                            <div class="input-field col s6">
+                                <input type="text" name="parish" id="parish" value="<?= $institution->parish ?? '' ?>">
+                                <label for="parish" class="active">Parroquia</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s6">
+                                <input type="number" name="total_enrollment" id="total_enrollment" value="<?= $institution->total_enrollment ?? '' ?>">
+                                <label for="total_enrollment" class="active">Matrícula Total</label>
+                            </div>
+                            <div class="input-field col s6">
                                 <input type="checkbox" id="active" name="active" class="filled-in" value="1" <?= (isset($institution->active) && $institution->active) ? 'checked' : '' ?> />
                                 <label for="active">Institución activa</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12 m12 l12">
+
                             </div>
                         </div>
                         <div class="row right-align">
                             <button type="submit" class="btn waves-effect waves-light">
                                 <i class="material-icons left">save</i> Guardar
                             </button>
-                            <a href="<?= BASE_URL ?>actors" class="btn grey">
+                            <a href="<?= BASE_URL ?>institutions" class="btn grey">
                                 <i class="material-icons left">arrow_back</i> Cancelar
                             </a>
                         </div>

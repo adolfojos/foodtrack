@@ -3,7 +3,7 @@
     </main>
     <!-- Footer -->
     <footer class="center-align">
-        <span><?= date('Y') ?> © foodtrack - Food tracking system.</span>
+        <span><?= date('Y') ?> © CNAE Buria - Sistema de Gestion Institucional.</span>
     </footer>
     <!-- Scripts -->
     <script src="<?= VENDOR_PATH ?>jquery/jquery.min.js"></script>
